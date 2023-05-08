@@ -1,4 +1,4 @@
-import React from "react"
+import React, {useState, useEffect} from "react"
 import Sidebar from "./components/Sidebar"
 import Editor from "./components/Editor"
 import Split from "react-split"
@@ -10,6 +10,7 @@ export default function App() {
     const [notes, setNotes] = React.useState([])
     
     const [currentNoteId, setCurrentNoteId] = React.useState("")
+    const [tempNoteText, setTempNoteText] = useState("")
 
     
     const currentNote = 
@@ -35,6 +36,21 @@ export default function App() {
             setCurrentNoteId(notes[0]?.id)
         }
     }, [notes])
+
+    useEffect(() => {
+        if(currentNote) {
+            setTempNoteText(currentNote.body)
+        }
+    }, [currentNote])
+
+    useEffect(()=>{
+        const timeoutId = setTimeout(()=>{
+            if(tempNoteText !== currentNote.body){
+                updateNote(tempNoteText)
+            }
+        }, 500)
+        return () => clearTimeout(timeoutId)
+    }, [tempNoteText])
 
     async function createNewNote() {
         const newNote = {
@@ -79,8 +95,8 @@ export default function App() {
                             currentNoteId &&
                             notes.length > 0 &&
                             <Editor
-                                currentNote={currentNote}
-                                updateNote={updateNote}
+                                tempNoteText={tempNoteText}
+                                setTempNoteText={setTempNoteText}
                             />
                         }
                     </Split>
